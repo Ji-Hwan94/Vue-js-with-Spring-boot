@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springbootapp.board.repository.BoardRepository">
+
+    <select id="findById" resultType="com.example.springbootapp.board.dto.BoardResponseDto">
+        SELECT b.id, b.title, b.description, b.user_id AS userId, u.username, b.created_at, b.updated_at
+        FROM boards b
+        LEFT JOIN users u ON b.user_id = u.id
+        WHERE b.id = #{id}
+    </select>
+
+    <select id="findAll" resultType="com.example.springbootapp.board.dto.BoardResponseDto">
+        SELECT b.id, b.title, b.description, b.user_id AS userId, u.username, b.created_at, b.updated_at
+        FROM boards b
+        LEFT JOIN users u ON b.user_id = u.id
+        ORDER BY b.created_at DESC
+    </select>
+
+    <select id="findByUserId" resultType="com.example.springbootapp.board.dto.BoardResponseDto">
+        SELECT b.id, b.title, b.description, b.user_id AS userId, u.username, b.created_at, b.updated_at
+        FROM boards b
+        LEFT JOIN users u ON b.user_id = u.id
+        WHERE b.user_id = #{userId}
+        ORDER BY b.created_at DESC
+    </select>
+
+    <insert id="insertBoard">
+        INSERT INTO boards (title, description, user_id, created_at, updated_at)
+        VALUES (#{title}, #{description}, #{userId}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="updateBoard">
+        UPDATE boards
+        SET title = #{title},
+            description = #{description},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM boards
+        WHERE id = #{id}
+    </delete>
+
+</mapper>
