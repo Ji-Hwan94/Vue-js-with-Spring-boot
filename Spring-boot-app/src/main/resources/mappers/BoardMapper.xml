@@ -24,20 +24,20 @@
         ORDER BY b.created_at DESC
     </select>
 
-    <insert id="insertBoard">
-        INSERT INTO boards (title, description, user_id, created_at, updated_at)
-        VALUES (#{title}, #{description}, #{userId}, #{createdAt}, #{updatedAt})
+    <insert id="insertBoard" parameterType="com.example.springbootapp.board.dto.BoardRequestDto">
+        INSERT INTO boards (title, description, user_id, created_at)
+        VALUES (#{title}, #{description}, #{userId}, now())
     </insert>
 
-    <update id="updateBoard">
+    <update id="updateBoard" parameterType="com.example.springbootapp.board.dto.BoardRequestDto">
         UPDATE boards
         SET title = #{title},
             description = #{description},
-            updated_at = #{updatedAt}
+            updated_at = now()
         WHERE id = #{id}
     </update>
 
-    <delete id="deleteById">
+    <delete id="deleteById" parameterType="int">
         DELETE FROM boards
         WHERE id = #{id}
     </delete>
