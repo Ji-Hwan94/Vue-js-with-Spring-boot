@@ -1,5 +1,6 @@
 package com.example.springbootapp.board.repository;
 
+import com.example.springbootapp.board.dto.BoardRequestDto;
 import com.example.springbootapp.board.dto.BoardResponseDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -16,16 +17,9 @@ public interface BoardRepository {
 
     List<BoardResponseDto> findByUserId(@Param("userId") Long userId);
 
-    int insertBoard(@Param("title") String title,
-                   @Param("description") String description,
-                   @Param("userId") Long userId,
-                   @Param("createdAt") LocalDateTime createdAt,
-                   @Param("updatedAt") LocalDateTime updatedAt);
+    int insertBoard(BoardRequestDto boardRequestDto);
 
-    int updateBoard(@Param("id") Long id,
-                   @Param("title") String title,
-                   @Param("description") String description,
-                   @Param("updatedAt") LocalDateTime updatedAt);
+    int updateBoard(BoardRequestDto boardRequestDto);
 
     int deleteById(@Param("id") Long id);
 }

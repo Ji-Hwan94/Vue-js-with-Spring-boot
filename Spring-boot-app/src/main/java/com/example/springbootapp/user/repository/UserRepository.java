@@ -1,5 +1,6 @@
 package com.example.springbootapp.user.repository;
 
+import com.example.springbootapp.user.dto.UserRequestDto;
 import com.example.springbootapp.user.dto.UserResponseDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -18,17 +19,7 @@ public interface UserRepository {
 
     UserResponseDto findByEmail(@Param("email") String email);
 
-    int insertUser(@Param("username") String username, 
-                  @Param("email") String email, 
-                  @Param("password") String password,
-                  @Param("createdAt") LocalDateTime createdAt,
-                  @Param("updatedAt") LocalDateTime updatedAt);
+    int insertUser(UserRequestDto userRequestDto);
 
-    int updateUser(@Param("id") Long id,
-                  @Param("username") String username, 
-                  @Param("email") String email, 
-                  @Param("password") String password,
-                  @Param("updatedAt") LocalDateTime updatedAt);
 
-    int deleteById(@Param("id") Long id);
 }

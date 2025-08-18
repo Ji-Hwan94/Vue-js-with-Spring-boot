@@ -17,11 +17,13 @@ public class BoardController {
 
     private final BoardService boardService;
 
+    //  Spring 4.3 이후부터는 단일 생성자가 있는 경우 @Autowired를 생략할 수 있습니다:
     @Autowired
     public BoardController(BoardService boardService) {
         this.boardService = boardService;
     }
 
+    // ResponseEntity : Spring에서 HTTP 응답을 더 세밀하게 제어할 수 있게 해주는 클래스
     @PostMapping
     public ResponseEntity<BoardResponseDto> createBoard(@Valid @RequestBody BoardRequestDto boardRequestDto) {
         BoardResponseDto createdBoard = boardService.createBoard(boardRequestDto);

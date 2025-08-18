@@ -31,8 +31,7 @@ public class BoardServiceImpl implements BoardService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        boardRepository.insertBoard(boardRequestDto.getTitle(), boardRequestDto.getDescription(), 
-                                   boardRequestDto.getUserId(), now, now);
+        boardRepository.insertBoard(boardRequestDto);
         
         List<BoardResponseDto> userBoards = boardRepository.findByUserId(boardRequestDto.getUserId());
         return userBoards.get(0);
@@ -72,8 +71,7 @@ public class BoardServiceImpl implements BoardService {
             throw new RuntimeException("Only the board owner can update this board");
         }
 
-        boardRepository.updateBoard(id, boardRequestDto.getTitle(), boardRequestDto.getDescription(), 
-                                   LocalDateTime.now());
+        boardRepository.updateBoard(boardRequestDto);
         
         return boardRepository.findById(id);
     }

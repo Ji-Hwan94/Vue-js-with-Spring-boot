@@ -26,23 +26,8 @@
         WHERE email = #{email}
     </select>
 
-    <insert id="insertUser">
-        INSERT INTO users (username, email, password, created_at, updated_at)
-        VALUES (#{username}, #{email}, #{password}, #{createdAt}, #{updatedAt})
+    <insert id="insertUser" parameterType="com.example.springbootapp.user.dto.UserRequestDto">
+        INSERT INTO users (username, email, password, created_at)
+        VALUES (#{username}, #{email}, #{password}, now())
     </insert>
-
-    <update id="updateUser">
-        UPDATE users
-        SET username = #{username},
-            email = #{email},
-            password = #{password},
-            updated_at = #{updatedAt}
-        WHERE id = #{id}
-    </update>
-
-    <delete id="deleteById">
-        DELETE FROM users
-        WHERE id = #{id}
-    </delete>
-
 </mapper>
