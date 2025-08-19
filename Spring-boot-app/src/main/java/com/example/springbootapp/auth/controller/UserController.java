@@ -1,8 +1,9 @@
-package com.example.springbootapp.user.controller;
+package com.example.springbootapp.auth.controller;
 
-import com.example.springbootapp.user.dto.UserRequestDto;
-import com.example.springbootapp.user.dto.UserResponseDto;
-import com.example.springbootapp.user.service.UserService;
+import com.example.springbootapp.auth.dto.UserRequestDto;
+import com.example.springbootapp.auth.dto.UserResponseDto;
+import com.example.springbootapp.auth.service.UserService;
+import com.example.springbootapp.auth.dto.JwtToken;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,5 +33,11 @@ public class UserController {
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         List<UserResponseDto> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/login")
+    ResponseEntity<JwtToken> login(@RequestBody UserRequestDto userRequestDto){
+        JwtToken login = userService.login(userRequestDto);
+        return ResponseEntity.ok(login);
     }
 }

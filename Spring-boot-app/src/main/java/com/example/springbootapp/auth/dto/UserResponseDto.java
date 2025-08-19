@@ -1,4 +1,4 @@
-package com.example.springbootapp.user.dto;
+package com.example.springbootapp.auth.dto;
 
 import java.time.LocalDateTime;
 
@@ -8,15 +8,14 @@ public class UserResponseDto {
     private String email;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String password;
 
-    public UserResponseDto() {}
+    public String getPassword() {
+        return password;
+    }
 
-    public UserResponseDto(Long id, String username, String email, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Long getId() {
