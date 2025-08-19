@@ -1,11 +1,10 @@
-package com.example.springbootapp.user.repository;
+package com.example.springbootapp.auth.repository;
 
-import com.example.springbootapp.user.dto.UserRequestDto;
-import com.example.springbootapp.user.dto.UserResponseDto;
+import com.example.springbootapp.auth.dto.UserRequestDto;
+import com.example.springbootapp.auth.dto.UserResponseDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper

@@ -3,8 +3,8 @@ package com.example.springbootapp.board.service;
 import com.example.springbootapp.board.dto.BoardRequestDto;
 import com.example.springbootapp.board.dto.BoardResponseDto;
 import com.example.springbootapp.board.repository.BoardRepository;
-import com.example.springbootapp.user.repository.UserRepository;
-import com.example.springbootapp.user.dto.UserResponseDto;
+import com.example.springbootapp.auth.repository.UserRepository;
+import com.example.springbootapp.auth.dto.UserResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.example.springbootapp.user.dto;
+package com.example.springbootapp.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
