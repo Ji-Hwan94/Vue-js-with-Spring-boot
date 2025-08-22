@@ -5,10 +5,10 @@
         <h2 class="text-2xl font-bold text-center mb-6">로그인</h2>
         <form @submit.prevent="handleLogin">
           <div class="mb-4">
-            <label class="form-label">이메일</label>
+            <label class="form-label">아이디</label>
             <input
               v-model="loginForm.email"
-              type="email"
+              type="text"
               class="form-input w-full"
               required
             />
@@ -36,6 +36,7 @@
 
 <script setup>
 import { reactive } from "vue";
+import { loginService } from "../../service/loginService";
 
 const loginForm = reactive({
   email: "",
@@ -43,7 +44,7 @@ const loginForm = reactive({
 });
 
 const handleLogin = () => {
-  console.log("로그인 시도:", loginForm);
+  loginService.getLogin(loginForm);
 };
 </script>
 

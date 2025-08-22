@@ -34,7 +34,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @PostMapping("/login")
+    @GetMapping("/login")
     ResponseEntity<JwtToken> login(@RequestBody UserRequestDto userRequestDto){
         JwtToken login = userService.login(userRequestDto);
         return ResponseEntity.ok(login);

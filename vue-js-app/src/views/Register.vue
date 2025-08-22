@@ -5,7 +5,7 @@
         <h2 class="text-2xl font-bold text-center mb-6">회원가입</h2>
         <form @submit.prevent="handleRegister">
           <div class="mb-4">
-            <label class="form-label">사용자명</label>
+            <label class="form-label">아이디</label>
             <input
               v-model="registerForm.username"
               type="text"
