@@ -13,4 +13,6 @@ public interface UserService {
     boolean validatePassword(String username, String rawPassword);
     JwtToken login(UserRequestDto userRequestDto);
     JwtToken refreshToken(RefreshTokenRequest refreshTokenRequest);
+
+    UserResponseDto getUserByUsername(String username);
 }

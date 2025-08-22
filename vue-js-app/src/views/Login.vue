@@ -7,8 +7,17 @@
           <div class="mb-4">
             <label class="form-label">아이디</label>
             <input
-              v-model="loginForm.email"
+              v-model="loginForm.username"
               type="text"
+              class="form-input w-full"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label class="form-label">이메일</label>
+            <input
+              v-model="loginForm.email"
+              type="email"
               class="form-input w-full"
               required
             />
@@ -35,16 +44,38 @@
 </template>
 
 <script setup>
+import { loginService } from "@/service/loginService";
+import { useAuthStore } from "@/stores/authStore";
 import { reactive } from "vue";
-import { loginService } from "../../service/loginService";
+import { useRouter } from "vue-router";
+
+const authStore = useAuthStore();
+const router = useRouter();
 
 const loginForm = reactive({
-  email: "",
-  password: "",
+  username: "user4",
+  email: "user4@google.com",
+  password: "123456",
 });
 
-const handleLogin = () => {
-  loginService.getLogin(loginForm);
+const handleLogin = async () => {
+  try {
+    // 백엔드에 로그인 요청 (httpOnly 쿠키가 응답으로 설정됨)
+    await loginService.getLogin(loginForm);
+
+    // ========== HttpOnly 쿠키 방식으로 변경됨 ==========
+    // 이전 방식: 응답에서 토큰을 받아서 store에 저장 (주석 처리)
+    // const { accessToken, refreshToken } = response.data;
+    // authStore.setTokens({ accessToken, refreshToken });
+
+    // 새로운 방식: httpOnly 쿠키가 설정되었으므로 사용자 정보를 가져옴
+    // 백엔드에서 쿠키를 검증하고 사용자 정보를 반환하는 API 호출
+    await authStore.checkAuthStatus();
+
+    router.push("/boards");
+  } catch (error) {
+    console.error("로그인 실패:", error);
+  }
 };
 </script>
 
