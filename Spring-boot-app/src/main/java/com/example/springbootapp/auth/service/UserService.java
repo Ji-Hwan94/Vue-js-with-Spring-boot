@@ -1,5 +1,6 @@
 package com.example.springbootapp.auth.service;
 
+import com.example.springbootapp.auth.dto.RefreshTokenRequest;
 import com.example.springbootapp.auth.dto.UserRequestDto;
 import com.example.springbootapp.auth.dto.UserResponseDto;
 import com.example.springbootapp.auth.dto.JwtToken;
@@ -11,4 +12,5 @@ public interface UserService {
     List<UserResponseDto> getAllUsers();
     boolean validatePassword(String username, String rawPassword);
     JwtToken login(UserRequestDto userRequestDto);
+    JwtToken refreshToken(RefreshTokenRequest refreshTokenRequest);
 }

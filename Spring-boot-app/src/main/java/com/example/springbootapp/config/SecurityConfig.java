@@ -25,10 +25,12 @@ public class SecurityConfig {
         http
             // 요청 권한 설정
             .authorizeHttpRequests(auth -> auth
-                // /api/users GET 요청은 JWT 인증 필요 (더 구체적인 규칙을 먼저)
+                // /api/users GET 요청은 JWT 인증 필요
                 .requestMatchers("GET", "/api/users").authenticated()
+                .requestMatchers("GET", "/api/boards/**").authenticated()
                 // 인증 없이 접근 가능한 엔드포인트
                 .requestMatchers("/api/users/login").permitAll()
+                .requestMatchers("/api/users/refresh").permitAll()
                 .requestMatchers("POST", "/api/users").permitAll()
                 // 나머지 모든 요청은 허용 (개발용)
                 .anyRequest().permitAll()

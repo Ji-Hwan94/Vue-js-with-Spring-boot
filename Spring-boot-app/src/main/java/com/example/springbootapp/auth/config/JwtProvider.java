@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 /**
  * JWT 토큰 생성 및 검증을 담당하는 컴포넌트
@@ -19,6 +22,13 @@ public class JwtProvider {
 
     @Value("${jwt.expiration}")
     private long expiration;
+
+    @Value("${jwt.refresh.expiration}")
+    private long refreshExpiration;
+
+    // 리프레시 토큰 ID와 사용자명 매핑을 위한 임시 저장소
+    // 프로덕션에서는 Redis 또는 데이터베이스 사용 권장
+    private final Map<String, String> refreshTokenStore = new ConcurrentHashMap<>();
 
     /**
      * JWT 토큰을 생성합니다.
@@ -97,6 +107,68 @@ public class JwtProvider {
     private SecretKey getSigningKey() {
         byte[] keyBytes = SECRET_KEY.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    /**
+     * 리프레시 토큰을 생성합니다.
+     * 사용자 정보는 토큰에 포함하지 않고 별도 저장소에서 관리합니다.
+     * @param username 사용자명
+     * @return 생성된 리프레시 토큰 문자열
+     */
+    public String generateRefreshToken(String username) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + refreshExpiration);
+        
+        // 고유한 토큰 ID 생성
+        String tokenId = UUID.randomUUID().toString();
+        
+        // 토큰 ID와 사용자명 매핑 저장
+        refreshTokenStore.put(tokenId, username);
+
+        return Jwts.builder()
+                .id(tokenId)  // 사용자 정보 대신 UUID 사용
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    /**
+     * 토큰을 새로 발급합니다 (리프레시 토큰 검증 후).
+     * @param refreshToken 리프레시 토큰
+     * @return 새로운 액세스 토큰과 리프레시 토큰
+     */
+    public String[] refreshTokens(String refreshToken) {
+        if (!validateToken(refreshToken)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+        
+        // 리프레시 토큰에서 토큰 ID 추출
+        String tokenId = getTokenIdFromRefreshToken(refreshToken);
+        
+        // 저장소에서 사용자명 조회
+        String username = refreshTokenStore.get(tokenId);
+        if (username == null) {
+            throw new RuntimeException("Refresh token not found or expired");
+        }
+        
+        // 기존 리프레시 토큰 무효화 (보안상 권장)
+        refreshTokenStore.remove(tokenId);
+        
+        String newAccessToken = generateToken(username);
+        String newRefreshToken = generateRefreshToken(username);
+        
+        return new String[]{newAccessToken, newRefreshToken};
+    }
+
+    /**
+     * 리프레시 토큰에서 토큰 ID를 추출합니다.
+     * @param refreshToken 리프레시 토큰
+     * @return 토큰 ID
+     */
+    private String getTokenIdFromRefreshToken(String refreshToken) {
+        Claims claims = getClaimsFromToken(refreshToken);
+        return claims.getId();
     }
 
 }
