@@ -2,6 +2,7 @@ package com.example.springbootapp.auth.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,10 @@ import java.util.ArrayList;
 /**
  * JWT 토큰을 검증하고 사용자 인증을 처리하는 필터
  * 모든 HTTP 요청에 대해 한 번씩 실행됩니다.
+ * 
+ * ========== HttpOnly 쿠키 방식으로 변경됨 ==========
+ * 이전: Authorization 헤더에서만 Bearer 토큰 추출
+ * 현재: HttpOnly 쿠키에서 먼저 토큰 추출, 없으면 Authorization 헤더에서 추출
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -68,18 +73,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * HTTP 요청의 Authorization 헤더에서 Bearer 토큰을 추출합니다.
+     * HTTP 요청에서 JWT 토큰을 추출합니다.
+     * ========== HttpOnly 쿠키 방식으로 변경됨 ==========
+     * 이전: Authorization 헤더에서만 Bearer 토큰 추출
+     * 현재: HttpOnly 쿠키에서 먼저 찾고, 없으면 Authorization 헤더에서 찾습니다.
      * @param request HTTP 요청 객체
      * @return JWT 토큰 문자열 또는 null
      */
     private String extractTokenFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        
-        // "Bearer "로 시작하는 토큰인지 확인
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7); // "Bearer " 제거 후 토큰 반환
+        // 새로 추가: HttpOnly 쿠키에서 accessToken 추출 시도 (보안 강화)
+        String tokenFromCookie = extractTokenFromCookies(request);
+        if (tokenFromCookie != null) {
+            return tokenFromCookie;
         }
+        return null;
         
+        // 이전 코드 (주석 처리): Authorization 헤더에서만 Bearer 토큰 추출
+        // private String extractTokenFromRequest(HttpServletRequest request) {
+        //     String bearerToken = request.getHeader("Authorization");
+        //     if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        //         return bearerToken.substring(7);
+        //     }
+        //     return null;
+        // }
+    }
+    
+    /**
+//     * 새로 추가: HTTP 요청의 쿠키에서 accessToken을 추출합니다.
+     * HttpOnly 쿠키 방식을 지원하기 위해 추가된 메서드
+     * @param request HTTP 요청 객체
+     * @return JWT 토큰 문자열 또는 null
+     */
+    private String extractTokenFromCookies(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                // "accessToken" 이름의 HttpOnly 쿠키에서 JWT 토큰 추출
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
         return null;
     }
 }

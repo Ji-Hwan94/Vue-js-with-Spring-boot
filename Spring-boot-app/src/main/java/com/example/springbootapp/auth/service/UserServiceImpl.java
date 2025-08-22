@@ -114,4 +114,9 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Invalid refresh token");
         }
     }
+
+    @Override
+    public UserResponseDto getUserByUsername(String username) {
+        return this.userRepository.findByUsername(username);
+    }
 }

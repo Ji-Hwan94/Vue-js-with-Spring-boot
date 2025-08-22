@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -25,18 +26,25 @@ public class SecurityConfig {
         http
             // 요청 권한 설정
             .authorizeHttpRequests(auth -> auth
-                // /api/users GET 요청은 JWT 인증 필요
+                // JWT 인증이 필요한 엔드포인트들
                 .requestMatchers("GET", "/api/users").authenticated()
+                .requestMatchers("GET", "/api/users/me").authenticated() // 현재 사용자 정보 조회
+                .requestMatchers("POST", "/api/users/logout").authenticated() // 로그아웃
                 .requestMatchers("GET", "/api/boards/**").authenticated()
-                // 인증 없이 접근 가능한 엔드포인트
+                // 인증 없이 접근 가능한 엔드포인트 (회원가입, 로그인, 토큰 갱신)
                 .requestMatchers("/api/users/login").permitAll()
                 .requestMatchers("/api/users/refresh").permitAll()
-                .requestMatchers("POST", "/api/users").permitAll()
+                .requestMatchers("POST", "/api/users").permitAll() // 회원가입
                 // 나머지 모든 요청은 허용 (개발용)
                 .anyRequest().permitAll()
             )
-            // REST API를 위해 CSRF 보호 비활성화
-            .csrf(csrf -> csrf.disable())
+            // HttpOnly 쿠키 사용을 위해 CSRF 보호 활성화
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringRequestMatchers("/api/users/login", "/api/users/refresh", "/api/users/logout")
+            )
+            // REST API를 위해 CSRF 보호 비활성화 (주석 처리)
+            // .csrf(csrf -> csrf.disable())
             // 세션을 사용하지 않도록 설정 (JWT 사용)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // JWT 필터를 UsernamePasswordAuthenticationFilter 이전에 추가

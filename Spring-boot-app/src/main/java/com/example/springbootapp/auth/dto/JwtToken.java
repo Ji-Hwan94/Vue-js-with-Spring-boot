@@ -19,13 +19,4 @@ public class JwtToken {
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
-
-    // 하위 호환성을 위한 메소드
-    public String getToken() {
-        return accessToken;
-    }
-
-    public void setToken(String token) {
-        this.accessToken = token;
-    }
 }
