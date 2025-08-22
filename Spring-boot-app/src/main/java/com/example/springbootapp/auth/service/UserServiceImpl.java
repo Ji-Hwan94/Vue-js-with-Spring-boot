@@ -5,6 +5,7 @@ import com.example.springbootapp.auth.dto.UserRequestDto;
 import com.example.springbootapp.auth.dto.UserResponseDto;
 import com.example.springbootapp.auth.repository.UserRepository;
 import com.example.springbootapp.auth.dto.JwtToken;
+import com.example.springbootapp.auth.dto.RefreshTokenRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -85,7 +86,32 @@ public class UserServiceImpl implements UserService {
         if(user == null || !validatePassword(userRequestDto.getUsername(), userRequestDto.getPassword())) {
             throw new RuntimeException("Invalid username or password");
         }
-        token.setToken(jwtProvider.generateToken(userRequestDto.getUsername()));
+        
+        // 액세스 토큰과 리프레시 토큰 모두 생성
+        token.setAccessToken(jwtProvider.generateToken(userRequestDto.getUsername()));
+        token.setRefreshToken(jwtProvider.generateRefreshToken(userRequestDto.getUsername()));
+        
         return token;
+    }
+
+    /**
+     * 리프레시 토큰을 사용하여 새로운 토큰을 발급합니다.
+     * @param refreshTokenRequest 리프레시 토큰 요청
+     * @return 새로운 JWT 토큰 (액세스 토큰과 리프레시 토큰)
+     * @throws RuntimeException 리프레시 토큰이 유효하지 않은 경우
+     */
+    @Override
+    public JwtToken refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        try {
+            String[] tokens = jwtProvider.refreshTokens(refreshTokenRequest.getRefreshToken());
+            
+            JwtToken jwtToken = new JwtToken();
+            jwtToken.setAccessToken(tokens[0]);
+            jwtToken.setRefreshToken(tokens[1]);
+            
+            return jwtToken;
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid refresh token");
+        }
     }
 }

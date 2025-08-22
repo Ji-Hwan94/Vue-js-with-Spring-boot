@@ -4,8 +4,8 @@ import com.example.springbootapp.auth.dto.UserRequestDto;
 import com.example.springbootapp.auth.dto.UserResponseDto;
 import com.example.springbootapp.auth.service.UserService;
 import com.example.springbootapp.auth.dto.JwtToken;
+import com.example.springbootapp.auth.dto.RefreshTokenRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,6 @@ public class UserController {
 
     private final UserService userService;
 
-    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -39,5 +38,15 @@ public class UserController {
     ResponseEntity<JwtToken> login(@RequestBody UserRequestDto userRequestDto){
         JwtToken login = userService.login(userRequestDto);
         return ResponseEntity.ok(login);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtToken> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+        try {
+            JwtToken newTokens = userService.refreshToken(refreshTokenRequest);
+            return ResponseEntity.ok(newTokens);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }
