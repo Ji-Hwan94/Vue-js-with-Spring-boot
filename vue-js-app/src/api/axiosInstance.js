@@ -19,20 +19,30 @@ const axiosInstance = axios.create({
 
 // HttpOnly 쿠키 방식에서는 request interceptor 불필요
 // 브라우저가 자동으로 쿠키를 포함해서 요청을 보냄
-
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      // httpOnly 쿠키가 만료되었거나 유효하지 않음
-      // authStore를 여기서 직접 import하면 순환참조 발생 가능하므로
-      // 커스텀 이벤트를 발생시켜 App.vue에서 처리하도록 함
-      window.dispatchEvent(new CustomEvent('auth-logout'));
-      
-      // 이전 방식 (주석 처리)
-      // const authStore = useAuthStore();
-      // authStore.logout();
+    const originalRequest = error.config;
+
+    // refresh 요청 실패 시 바로 로그아웃
+    if (
+      originalRequest.url?.includes("/users/refresh") &&
+      (error.response?.status === 401 || error.response?.status === 403)
+    ) {
+      window.dispatchEvent(new CustomEvent("auth-logout"));
+      return Promise.reject(error);
     }
+
+    // 401/403 에러 시 토큰 갱신 시도
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      try {
+        await axiosInstance.post("/users/refresh");
+        return axiosInstance(originalRequest);
+      } catch (error) {
+        throw error;
+      }
+    }
+
     return Promise.reject(error);
   }
 );

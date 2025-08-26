@@ -1,5 +1,6 @@
 package com.example.springbootapp.auth.controller;
 
+import com.example.springbootapp.auth.config.SetTokenCookie;
 import com.example.springbootapp.auth.dto.UserRequestDto;
 import com.example.springbootapp.auth.dto.UserResponseDto;
 import com.example.springbootapp.auth.service.UserService;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +24,12 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final SetTokenCookie setTokenCookie;
 
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
+        this.setTokenCookie = new SetTokenCookie();
     }
     
     @PostMapping
@@ -47,20 +52,22 @@ public class UserController {
         // return ResponseEntity.ok(jwtToken);
         
         // Access Token을 HttpOnly 쿠키로 설정
-        Cookie accessTokenCookie = new Cookie("accessToken", jwtToken.getAccessToken());
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true); // HTTPS 환경에서만 전송
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(60 * 60); // 1시간
-        response.addCookie(accessTokenCookie);
-        
-        // Refresh Token을 HttpOnly 쿠키로 설정
-        Cookie refreshTokenCookie = new Cookie("refreshToken", jwtToken.getRefreshToken());
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
-        response.addCookie(refreshTokenCookie);
+//        Cookie accessTokenCookie = new Cookie("accessToken", jwtToken.getAccessToken());
+//        accessTokenCookie.setHttpOnly(true);
+//        accessTokenCookie.setSecure(false); // 개발환경에서는 HTTP도 허용
+//        accessTokenCookie.setPath("/");
+//        accessTokenCookie.setMaxAge(2); // 2초 - refresh 토큰 테스트용
+//        response.addCookie(accessTokenCookie);
+//
+//        // Refresh Token을 HttpOnly 쿠키로 설정
+//        Cookie refreshTokenCookie = new Cookie("refreshToken", jwtToken.getRefreshToken());
+//        refreshTokenCookie.setHttpOnly(true);
+//        refreshTokenCookie.setSecure(false); // 개발환경에서는 HTTP도 허용
+//        refreshTokenCookie.setPath("/");
+//        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+//        response.addCookie(refreshTokenCookie);
+
+        setTokenCookie.setTokenCookie(jwtToken, response);
         
         return ResponseEntity.ok().build();
     }
@@ -75,12 +82,22 @@ public class UserController {
             // return ResponseEntity.ok(newTokens);
             
             // 새 Access Token을 HttpOnly 쿠키로 설정
-            Cookie accessTokenCookie = new Cookie("accessToken", newTokens.getAccessToken());
-            accessTokenCookie.setHttpOnly(true);
-            accessTokenCookie.setSecure(true);
-            accessTokenCookie.setPath("/");
-            accessTokenCookie.setMaxAge(60 * 60); // 1시간
-            response.addCookie(accessTokenCookie);
+//            Cookie accessTokenCookie = new Cookie("accessToken", newTokens.getAccessToken());
+//            accessTokenCookie.setHttpOnly(true);
+//            accessTokenCookie.setSecure(false); // 개발환경에서는 HTTP도 허용
+//            accessTokenCookie.setPath("/");
+//            accessTokenCookie.setMaxAge(2); // 2초 - refresh 토큰 테스트용
+//            response.addCookie(accessTokenCookie);
+//
+//            // 새 Refresh Token을 HttpOnly 쿠키로 설정
+//            Cookie refreshTokenCookie = new Cookie("refreshToken", newTokens.getRefreshToken());
+//            refreshTokenCookie.setHttpOnly(true);
+//            refreshTokenCookie.setSecure(false); // 개발환경에서는 HTTP도 허용
+//            refreshTokenCookie.setPath("/");
+//            refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+//            response.addCookie(refreshTokenCookie);
+
+            setTokenCookie.setTokenCookie(newTokens, response);
             
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
@@ -119,7 +136,7 @@ public class UserController {
         // Access Token 쿠키 삭제
         Cookie accessTokenCookie = new Cookie("accessToken", null);
         accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setSecure(false); // 개발환경에서는 HTTP도 허용
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(0); // 즉시 만료
         response.addCookie(accessTokenCookie);
@@ -127,7 +144,7 @@ public class UserController {
         // Refresh Token 쿠키 삭제
         Cookie refreshTokenCookie = new Cookie("refreshToken", null);
         refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setSecure(false); // 개발환경에서는 HTTP도 허용
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(0); // 즉시 만료
         response.addCookie(refreshTokenCookie);

@@ -19,7 +19,7 @@ public interface BoardRepository {
 
     int insertBoard(BoardRequestDto boardRequestDto);
 
-    int updateBoard(BoardRequestDto boardRequestDto);
+    int updateBoard(@Param("id") Long id, @Param("boardRequestDto") BoardRequestDto boardRequestDto);
 
     int deleteById(@Param("id") Long id);
 }

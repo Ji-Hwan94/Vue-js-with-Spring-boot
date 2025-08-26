@@ -12,7 +12,6 @@ public class BoardRequestDto {
     @Size(max = 500, message = "Description must not exceed 500 characters")
     private String description;
 
-    @NotNull(message = "User ID is required")
     private Long userId;
 
     public BoardRequestDto() {}

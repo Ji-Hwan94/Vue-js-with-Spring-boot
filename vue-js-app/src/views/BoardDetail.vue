@@ -5,7 +5,7 @@
         <h1 class="text-3xl font-bold mb-2">{{ board.title }}</h1>
         <div class="flex justify-between text-sm text-gray-600">
           <span>작성자: {{ board.username }}</span>
-          <span>작성일: {{ formatDate(board.created_at) }}</span>
+          <span>작성일: {{ board.createdAt?.substring(0, 10) }}</span>
         </div>
       </div>
       <div class="prose max-w-none mb-6">
@@ -22,10 +22,21 @@
     <div class="card text-center" v-else>
       <p class="text-gray-500">게시글을 찾을 수 없습니다.</p>
     </div>
+
+    <!-- 수정 모달 -->
+    <BoardEditModal
+      v-if="isEditModalOpen"
+      :board="board"
+      :loading="isUpdating"
+      @close="closeEditModal"
+      @update="handleUpdate"
+    />
   </div>
 </template>
 
 <script setup>
+import { boardService } from "@/service/boardService";
+import BoardEditModal from "@/components/BoardEditModal.vue";
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
@@ -33,38 +44,54 @@ const route = useRoute();
 const router = useRouter();
 const board = ref(null);
 
-const loadBoard = () => {
-  const boardId = parseInt(route.params.id);
-  // 임시 데이터 (실제로는 API에서 가져올 예정)
-  const boards = [
-    {
-      id: 1,
-      title: "첫 번째 게시글",
-      description: "게시글 내용입니다.\n\n여러 줄의 내용을 표시할 수 있습니다.",
-      username: "사용자1",
-      created_at: "2024-01-01T10:00:00Z",
-    },
-    {
-      id: 2,
-      title: "두 번째 게시글",
-      description: "두 번째 게시글의 내용입니다.",
-      username: "사용자2",
-      created_at: "2024-01-02T15:30:00Z",
-    },
-  ];
-  
-  board.value = boards.find((b) => b.id === boardId);
+const isEditModalOpen = ref(false);
+const isUpdating = ref(false);
+
+const loadBoard = async () => {
+  try {
+    const boardId = parseInt(route.params.id);
+    const result = await boardService.detailBoard(boardId);
+    board.value = result.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
-const deleteBoard = () => {
-  if (confirm("정말로 삭제하시겠습니까?")) {
-    console.log("게시글 삭제:", board.value.id);
-    router.push("/boards");
+const deleteBoard = async () => {
+  try {
+    if (confirm("정말로 삭제하시겠습니까?")) {
+      await boardService.deleteBoard(route.params.id);
+      router.push("/boards");
+    }
+  } catch (error) {
+    throw error;
   }
 };
 
 const editBoard = () => {
-  router.push(`/boards/${board.value.id}/edit`);
+  isEditModalOpen.value = !isEditModalOpen.value;
+};
+
+const closeEditModal = () => {
+  isEditModalOpen.value = !isEditModalOpen.value;
+};
+
+const handleUpdate = async (formData) => {
+  try {
+    isUpdating.value = true;
+    await boardService.updateBoard(board.value.id, formData);
+
+    board.value.title = formData.title;
+    board.value.description = formData.description;
+
+    closeEditModal();
+    alert("게시글이 수정되었습니다.");
+  } catch (error) {
+    console.error("게시글 수정 실패:", error);
+    alert("게시글 수정에 실패했습니다.");
+  } finally {
+    isUpdating.value = false;
+  }
 };
 
 const formatDate = (dateString) => {

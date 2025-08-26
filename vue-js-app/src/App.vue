@@ -8,7 +8,7 @@
           </router-link>
           <div class="space-x-4">
             <router-link
-              :to="getTargetRoute()"
+              :to="authStore.getTargetRoute()"
               class="text-gray-600 hover:text-gray-800"
             >
               게시판
@@ -61,6 +61,7 @@ const router = useRouter();
 // const { accessToken } = storeToRefs(authStore);
 
 // 새로운 방식: isAuthenticated로 인증 상태 확인
+// storeToRefs
 const { isAuthenticated } = storeToRefs(authStore);
 
 const logout = async () => {
@@ -78,7 +79,6 @@ const handleGlobalLogout = () => {
 const getTargetRoute = () => {
   // 이전: !accessToken -> 새로운: !isAuthenticated.value
   if (!isAuthenticated.value) {
-    alert("로그인을 먼저 하세요.");
     return { name: "Login" };
   } else {
     return { name: "BoardList" };
@@ -89,15 +89,15 @@ onMounted(async () => {
   // 새로 추가: 앱 시작시 httpOnly 쿠키를 이용한 인증 상태 확인
   // localStorage 방식에서는 불필요했지만, httpOnly 쿠키는 API 호출로만 확인 가능
   await authStore.checkAuthStatus();
-  
+
   // 새로 추가: axiosInstance에서 발생시키는 전역 로그아웃 이벤트 리스너 등록
   // 401 응답시 순환참조 방지를 위해 커스텀 이벤트 사용
-  window.addEventListener('auth-logout', handleGlobalLogout);
+  window.addEventListener("auth-logout", handleGlobalLogout);
 });
 
 onUnmounted(() => {
   // 이벤트 리스너 정리
-  window.removeEventListener('auth-logout', handleGlobalLogout);
+  window.removeEventListener("auth-logout", handleGlobalLogout);
 });
 </script>
 
