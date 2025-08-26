@@ -49,12 +49,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && jwtProvider.validateToken(token) && 
             SecurityContextHolder.getContext().getAuthentication() == null) {
             
-            // 토큰에서 사용자명 추출
-            String username = jwtProvider.getUsernameFromToken(token);
+            // 토큰에서 사용자 ID 추출
+            String userId = jwtProvider.getUserIdFromToken(token);
             
             // UserDetails 객체 생성
             UserDetails userDetails = User.builder()
-                    .username(username)
+                    .username(userId)
                     .password("") // JWT 사용 시 비밀번호는 필요하지 않음
                     .authorities(new ArrayList<>()) // 권한 설정 (필요시 추가)
                     .build();

@@ -32,15 +32,15 @@ public class JwtProvider {
 
     /**
      * JWT 토큰을 생성합니다.
-     * @param username 사용자명
+     * @param userId 사용자 ID
      * @return 생성된 JWT 토큰 문자열
      */
-    public String generateToken(String username) {
+    public String generateToken(String userId) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .subject(username)           // 토큰 주체 (사용자명)
+                .subject(userId)             // 토큰 주체 (사용자 ID)
                 .issuedAt(now)               // 토큰 발급 시간
                 .expiration(expiryDate)      // 토큰 만료 시간
                 .signWith(getSigningKey())      // 서명키로 토큰 서명
@@ -48,11 +48,11 @@ public class JwtProvider {
     }
 
     /**
-     * JWT 토큰에서 사용자명을 추출합니다.
+     * JWT 토큰에서 사용자 ID를 추출합니다.
      * @param token JWT 토큰
-     * @return 사용자명
+     * @return 사용자 ID
      */
-    public String getUsernameFromToken(String token) {
+    public String getUserIdFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         return claims.getSubject();
     }

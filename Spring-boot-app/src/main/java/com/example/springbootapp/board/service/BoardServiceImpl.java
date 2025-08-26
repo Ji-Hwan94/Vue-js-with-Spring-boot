@@ -24,16 +24,15 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public BoardResponseDto createBoard(BoardRequestDto boardRequestDto) {
-        UserResponseDto user = userRepository.findById(boardRequestDto.getUserId());
+    public BoardResponseDto createBoard(BoardRequestDto boardRequestDto, String userId) {
+        UserResponseDto user = userRepository.findById(Long.valueOf(userId));
         if (user == null) {
             throw new RuntimeException("User not found");
         }
-
-        LocalDateTime now = LocalDateTime.now();
+        boardRequestDto.setUserId(user.getId());
         boardRepository.insertBoard(boardRequestDto);
         
-        List<BoardResponseDto> userBoards = boardRepository.findByUserId(boardRequestDto.getUserId());
+        List<BoardResponseDto> userBoards = boardRepository.findByUserId(user.getId());
         return userBoards.get(0);
     }
 
@@ -61,29 +60,27 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public BoardResponseDto updateBoard(Long id, BoardRequestDto boardRequestDto) {
+    public BoardResponseDto updateBoard(Long id, BoardRequestDto boardRequestDto, String userId) {
         BoardResponseDto existingBoard = boardRepository.findById(id);
         if (existingBoard == null) {
             throw new RuntimeException("Board not found");
         }
-
-        if (!existingBoard.getUserId().equals(boardRequestDto.getUserId())) {
+        if (!userId.equals(existingBoard.getUserId().toString())) {
             throw new RuntimeException("Only the board owner can update this board");
         }
+        boardRepository.updateBoard(id, boardRequestDto);
 
-        boardRepository.updateBoard(boardRequestDto);
-        
         return boardRepository.findById(id);
     }
 
     @Override
-    public void deleteBoard(Long id, Long userId) {
+    public void deleteBoard(Long id, String userId) {
         BoardResponseDto board = boardRepository.findById(id);
         if (board == null) {
             throw new RuntimeException("Board not found");
         }
 
-        if (!board.getUserId().equals(userId)) {
+        if (!userId.equals(board.getUserId().toString())) {
             throw new RuntimeException("Only the board owner can delete this board");
         }
 

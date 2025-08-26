@@ -29,15 +29,15 @@
         VALUES (#{title}, #{description}, #{userId}, now())
     </insert>
 
-    <update id="updateBoard" parameterType="com.example.springbootapp.board.dto.BoardRequestDto">
+    <update id="updateBoard">
         UPDATE boards
-        SET title = #{title},
-            description = #{description},
+        SET title = #{boardRequestDto.title},
+            description = #{boardRequestDto.description},
             updated_at = now()
         WHERE id = #{id}
     </update>
 
-    <delete id="deleteById" parameterType="int">
+    <delete id="deleteById" parameterType="long">
         DELETE FROM boards
         WHERE id = #{id}
     </delete>

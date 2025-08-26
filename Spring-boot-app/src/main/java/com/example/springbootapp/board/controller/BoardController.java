@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +27,9 @@ public class BoardController {
     // ResponseEntity : Spring에서 HTTP 응답을 더 세밀하게 제어할 수 있게 해주는 클래스
     @PostMapping
     public ResponseEntity<BoardResponseDto> createBoard(@Valid @RequestBody BoardRequestDto boardRequestDto) {
-        BoardResponseDto createdBoard = boardService.createBoard(boardRequestDto);
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("User ID: " + userId);
+        BoardResponseDto createdBoard = boardService.createBoard(boardRequestDto, userId);
         return new ResponseEntity<>(createdBoard, HttpStatus.CREATED);
     }
 
@@ -51,13 +54,18 @@ public class BoardController {
     @PutMapping("/{id}")
     public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long id, 
                                                        @Valid @RequestBody BoardRequestDto boardRequestDto) {
-        BoardResponseDto updatedBoard = boardService.updateBoard(id, boardRequestDto);
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        BoardResponseDto updatedBoard = boardService.updateBoard(id, boardRequestDto, userId);
         return ResponseEntity.ok(updatedBoard);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBoard(@PathVariable Long id, @RequestParam Long userId) {
+    public ResponseEntity<Void> deleteBoard(@PathVariable Long id) {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         boardService.deleteBoard(id, userId);
+//        HTTP 응답으로 204 No Content 상태 코드를 반환할 때 사용하는 코드입니다.
+//        대부분의 경우, 리소스를 성공적으로 삭제하거나 수정했지만 추가로 반환할 내용(Body)이 없을 때 사용합니다.
+//        즉, 성공했음을 나타내지만 응답 본문은 비워두는 표준적인 방법
         return ResponseEntity.noContent().build();
     }
 }

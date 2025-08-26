@@ -24,6 +24,10 @@ export const useAuthStore = defineStore("auth", () => {
     isAuthenticated.value = false;
   };
 
+  const getTargetRoute = () => {
+    return !isAuthenticated.value ? { name: "Login" } : { name: "BoardList" };
+  };
+
   // 새로 추가: httpOnly 쿠키를 이용한 인증 상태 확인
   const checkAuthStatus = async () => {
     isLoading.value = true;
@@ -77,6 +81,7 @@ export const useAuthStore = defineStore("auth", () => {
     isLoading,
     setUser,
     clearAuth,
+    getTargetRoute,
     checkAuthStatus,
     logout,
     // 이전에 반환했던 것들 (주석 처리)

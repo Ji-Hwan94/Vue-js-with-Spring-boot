@@ -41,7 +41,7 @@ public class SecurityConfig {
             // HttpOnly 쿠키 사용을 위해 CSRF 보호 활성화
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/api/users/login", "/api/users/refresh", "/api/users/logout")
+                .ignoringRequestMatchers("/api/users/login", "/api/users/refresh", "/api/users/logout", "/api/boards/**")
             )
             // REST API를 위해 CSRF 보호 비활성화 (주석 처리)
             // .csrf(csrf -> csrf.disable())

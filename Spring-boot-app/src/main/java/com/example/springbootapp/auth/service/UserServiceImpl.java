@@ -87,9 +87,9 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Invalid username or password");
         }
         
-        // 액세스 토큰과 리프레시 토큰 모두 생성
-        token.setAccessToken(jwtProvider.generateToken(userRequestDto.getUsername()));
-        token.setRefreshToken(jwtProvider.generateRefreshToken(userRequestDto.getUsername()));
+        // 액세스 토큰과 리프레시 토큰 모두 생성 (사용자 ID 사용)
+        token.setAccessToken(jwtProvider.generateToken(String.valueOf(user.getId())));
+        token.setRefreshToken(jwtProvider.generateRefreshToken(String.valueOf(user.getId())));
         
         return token;
     }
