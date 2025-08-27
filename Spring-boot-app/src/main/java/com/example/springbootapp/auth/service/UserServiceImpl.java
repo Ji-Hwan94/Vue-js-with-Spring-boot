@@ -9,6 +9,8 @@ import com.example.springbootapp.auth.dto.RefreshTokenRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
@@ -29,11 +33,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
+        logger.info("Creating new user: {}", userRequestDto.getUsername());
         if (userRepository.findByUsername(userRequestDto.getUsername()) != null) {
+            logger.warn("Username already exists: {}", userRequestDto.getUsername());
             throw new RuntimeException("Username already exists");
         }
         
         if (userRepository.findByEmail(userRequestDto.getEmail()) != null) {
+            logger.warn("Email already exists: {}", userRequestDto.getEmail());
             throw new RuntimeException("Email already exists");
         }
 
@@ -45,6 +52,7 @@ public class UserServiceImpl implements UserService {
         
         LocalDateTime now = LocalDateTime.now();
         userRepository.insertUser(userRequestDto);
+        logger.info("User created successfully: {}", userRequestDto.getUsername());
         
         return userRepository.findByUsername(userRequestDto.getUsername());
     }
@@ -81,15 +89,18 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public JwtToken login(UserRequestDto userRequestDto) {
+        logger.info("Login attempt for user: {}", userRequestDto.getUsername());
         JwtToken token = new JwtToken();
         UserResponseDto user = userRepository.findByUsername(userRequestDto.getUsername());
         if(user == null || !validatePassword(userRequestDto.getUsername(), userRequestDto.getPassword())) {
+            logger.warn("Failed login attempt for user: {}", userRequestDto.getUsername());
             throw new RuntimeException("Invalid username or password");
         }
         
         // 액세스 토큰과 리프레시 토큰 모두 생성 (사용자 ID 사용)
         token.setAccessToken(jwtProvider.generateToken(String.valueOf(user.getId())));
         token.setRefreshToken(jwtProvider.generateRefreshToken(String.valueOf(user.getId())));
+        logger.info("User logged in successfully: {}", user.getUsername());
         
         return token;
     }

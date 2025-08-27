@@ -39,4 +39,65 @@ export const boardService = {
       throw error;
     }
   },
+  createFileBoard: async (data) => {
+    try {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+
+      // 파일이 있으면 추가
+      if (data.files && data.files.length > 0) {
+        data.files.forEach((file) => {
+          if (file) {
+            formData.append("files", file);
+          }
+        });
+      }
+
+      const result = await axiosInstance.post(`boards/with-files`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return result;
+    } catch (error) {}
+  },
+  updateFileBoard: async (id, data) => {
+    try {
+      console.log(data, data.deleteFileIds.length);
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+
+      // 파일이 있으면 추가
+      if (data.files && data.files.length > 0) {
+        data.files.forEach((file) => {
+          if (file) {
+            formData.append("files", file);
+          }
+        });
+      }
+
+      // 삭제할 파일 ID가 있으면 추가
+      if (data.deleteFileIds && data.deleteFileIds.length > 0) {
+        data.deleteFileIds.forEach((fileId) => {
+          formData.append("deleteFileIds", fileId);
+        });
+      }
+
+      const result = await axiosInstance.put(
+        `boards/${id}/with-files`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return result;
+    } catch (error) {
+      console.error("updateFileBoard 에러:", error.response?.data);
+      throw error;
+    }
+  },
 };

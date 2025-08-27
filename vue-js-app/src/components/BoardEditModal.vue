@@ -48,6 +48,17 @@
               required
             ></textarea>
           </div>
+
+          <div>
+            <label class="form-label">첨부파일</label>
+            <FileUpload
+              v-model="localForm.files"
+              :multiple="true"
+              accept="image/*,application/pdf,.doc,.docx,.txt"
+              @files-selected="handleFilesSelected"
+              @file-delete="setDeleteId"
+            />
+          </div>
         </div>
       </div>
 
@@ -63,6 +74,7 @@
 
 <script setup>
 import { onUnmounted, ref, watch } from "vue";
+import FileUpload from "./FileUpload.vue";
 
 const props = defineProps({
   board: {
@@ -80,7 +92,10 @@ const emit = defineEmits(["close", "update"]);
 const localForm = ref({
   title: "",
   description: "",
+  files: [],
 });
+
+const deleteFileIds = ref([]);
 
 // props.board가 변경될 때 로컬 폼 업데이트
 watch(
@@ -89,6 +104,7 @@ watch(
     if (newBoard) {
       localForm.value.title = newBoard.title;
       localForm.value.description = newBoard.description;
+      localForm.value.files = newBoard.files || [];
     }
   },
   { immediate: true }
@@ -98,13 +114,21 @@ const handleClose = () => {
   emit("close");
 };
 
+const setDeleteId = (param) => {
+  deleteFileIds.value = param;
+};
+
+const handleFilesSelected = (files) => {
+  localForm.value.files = files;
+};
+
 const handleUpdate = () => {
   if (!localForm.value.title.trim() || !localForm.value.description.trim()) {
     alert("제목과 내용을 모두 입력해주세요.");
     return;
   }
 
-  emit("update", { ...localForm.value });
+  emit("update", { ...localForm.value, deleteFileIds: deleteFileIds.value });
 };
 
 onUnmounted(() => {
