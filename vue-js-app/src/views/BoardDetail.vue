@@ -11,6 +11,33 @@
       <div class="prose max-w-none mb-6">
         <p class="whitespace-pre-wrap">{{ board.description }}</p>
       </div>
+      <div v-if="board.files && board.files.length > 0" class="mb-4">
+        <label class="form-label">첨부 파일</label>
+        <div class="mt-2 space-y-2">
+          <div
+            v-for="file in board.files"
+            :key="file.id"
+            class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+          >
+            <div class="flex items-center space-x-3">
+              <div>
+                <p class="text-sm font-medium text-gray-900">
+                  {{ file.originalName }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  {{ formatFileSize(file.fileSize) }}
+                </p>
+              </div>
+            </div>
+            <button
+              @click="downloadFile(file)"
+              class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              다운로드
+            </button>
+          </div>
+        </div>
+      </div>
       <div class="flex justify-between">
         <router-link to="/boards" class="btn-secondary">목록으로</router-link>
         <div class="space-x-2">
@@ -39,6 +66,7 @@ import { boardService } from "@/service/boardService";
 import BoardEditModal from "@/components/BoardEditModal.vue";
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { commonService } from "@/service/commonService";
 
 const route = useRoute();
 const router = useRouter();
@@ -79,13 +107,12 @@ const closeEditModal = () => {
 const handleUpdate = async (formData) => {
   try {
     isUpdating.value = true;
-    await boardService.updateBoard(board.value.id, formData);
-
-    board.value.title = formData.title;
-    board.value.description = formData.description;
+    const result = await boardService.updateFileBoard(board.value.id, formData);
 
     closeEditModal();
     alert("게시글이 수정되었습니다.");
+
+    board.value = result.data;
   } catch (error) {
     console.error("게시글 수정 실패:", error);
     alert("게시글 수정에 실패했습니다.");
@@ -94,8 +121,17 @@ const handleUpdate = async (formData) => {
   }
 };
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString("ko-KR");
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
+
+const downloadFile = (file) => {
+  // 파일 다운로드 구현
+  commonService.fileDownLoad(file);
 };
 
 onMounted(() => {

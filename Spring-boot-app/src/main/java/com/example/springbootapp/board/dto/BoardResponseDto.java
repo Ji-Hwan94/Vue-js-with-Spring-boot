@@ -1,6 +1,9 @@
 package com.example.springbootapp.board.dto;
 
+import com.example.springbootapp.file.dto.FileDto;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class BoardResponseDto {
     private Long id;
@@ -10,6 +13,7 @@ public class BoardResponseDto {
     private String username;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<FileDto> files;
 
     public BoardResponseDto() {}
 
@@ -78,5 +82,13 @@ public class BoardResponseDto {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<FileDto> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<FileDto> files) {
+        this.files = files;
     }
 }

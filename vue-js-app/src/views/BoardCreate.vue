@@ -25,6 +25,14 @@
             required
           ></textarea>
         </div>
+        <div class="mb-6">
+          <label class="form-label">첨부파일</label>
+          <FileUpload
+            v-model="boardForm.files"
+            :multiple="true"
+            accept="image/*,application/pdf,.doc,.docx,.txt"
+          />
+        </div>
         <div class="flex justify-between">
           <router-link
             :to="isEditMode ? `/boards/${boardId}` : '/boards'"
@@ -41,6 +49,7 @@
 </template>
 
 <script setup>
+import FileUpload from "@/components/FileUpload.vue";
 import { boardService } from "@/service/boardService";
 import { reactive, ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -54,6 +63,7 @@ const isEditMode = computed(() => route.name === "BoardEdit");
 const boardForm = reactive({
   title: "",
   description: "",
+  files: [],
 });
 
 const createBoard = async () => {
@@ -63,7 +73,7 @@ const createBoard = async () => {
       return;
     }
 
-    const result = await boardService.createBoard(boardForm);
+    const result = await boardService.createFileBoard(boardForm);
 
     if (result) {
       alert("게시물이 등록되었습니다.");
